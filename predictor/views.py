@@ -11,3 +11,12 @@ def data_exploration_view(request):
     }
 
     return render(request, "predictor/index.html", context)
+
+def regression_analysis(request):
+    return render(request, "predictor/regretion_analysis.html")
+
+def classification_analysis(request):
+    return render(request, "predictor/classification_analysis.html")
+
+def clustering_analysis(request):
+    return render(request, "predictor/clustering_analysis.html")
