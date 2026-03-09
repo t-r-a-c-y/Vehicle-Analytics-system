@@ -10,7 +10,7 @@ def data_exploration(df):
 
 def generate_rwanda_map(df):
     if 'district' not in df.columns:
-        return "<p>Error: Add 'district' column to vehicles_ml_dataset.csv with Rwanda district names.</p>"
+        return "<p>Error: 'district' column missing in vehicles_ml_dataset.csv. Add it with Rwanda district names.</p>"
 
     # Normalize names to match GeoJSON (title case, remove extras)
     df['district'] = df['district'].str.title().str.replace(' District', '').str.strip()
@@ -28,7 +28,7 @@ def generate_rwanda_map(df):
         district_counts,
         geojson=geojson,
         locations='district',
-        featureidkey='properties.shapeName',  # Standard for geoBoundaries Rwanda ADM2
+        featureidkey='properties.NAME_2',  # Changed to match your GeoJSON key
         color='client_count',
         color_continuous_scale='Blues',
         labels={'client_count': 'Number of Clients'},
@@ -39,7 +39,7 @@ def generate_rwanda_map(df):
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     # Debug: If no matches, show message
-    if not any(d in [f['properties']['shapeName'] for f in geojson['features']] for d in district_counts['district']):
+    if not any(d in [f['properties']['NAME_2'] for f in geojson['features']] for d in district_counts['district']):
         return "<p>Error: District names don't match GeoJSON. Use standard names like 'Rwamagana', 'Gasabo'.</p>"
 
     return fig.to_html(full_html=False, include_plotlyjs=True)  # Embed JS, no CDN needed
