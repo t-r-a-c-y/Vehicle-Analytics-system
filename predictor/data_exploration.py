@@ -1,53 +1,37 @@
 import pandas as pd
-import json
 import plotly.express as px
-import plotly.io as pio
+import json
+import requests  # For downloading GeoJSON
 
-# Data Preview Table
 def dataset_exploration(df):
-    table_html = df.head().to_html(
-        classes="table table-bordered table-striped table-sm",
-        float_format="%.2f",
-        justify="center",
-        index=False,
-    )
-    return table_html
+    return df.head().to_html(classes="table table-bordered table-striped table-sm", float_format="%.2f", justify="center", index=False)
 
-# Statistical Description Table
 def data_exploration(df):
-    table_html = df.describe().to_html(
-        classes="table table-bordered table-striped table-sm",
-        float_format="%.2f",
-        justify="center",
-    )
-    return table_html
+    return df.describe().to_html(classes="table table-bordered table-striped table-sm", float_format="%.2f", justify="center")
 
-# NEW: Rwanda Map Function (Exercise a)
-def get_rwanda_map(df):
-    # Prepare the data
+# For exercise a: Rwanda map
+def generate_rwanda_map(df):
+    # Aggregate client counts per district
     district_counts = df['district'].value_counts().reset_index()
     district_counts.columns = ['district', 'client_count']
 
-    # Load the GeoJSON file
-    with open('dummy-data/rwanda_districts.geojson', 'r', encoding='utf-8') as f:
-        rwanda_geojson = json.load(f)
+    # Download GeoJSON (Rwanda districts ADM2)
+    geojson_url = 'https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/RWA/ADM2/geoBoundaries-RWA-ADM2.geojson'
+    response = requests.get(geojson_url)
+    geojson = json.loads(response.text)
 
-    # Create the map
+    # Create choropleth map
     fig = px.choropleth(
         district_counts,
-        geojson=rwanda_geojson,
+        geojson=geojson,
         locations='district',
-        # NOTE: Make sure 'NAME_2' matches the key inside your GeoJSON file
-        featureidkey='properties.NAME_2', 
+        featureidkey='properties.shapeName',  # Matches district names in GeoJSON
         color='client_count',
-        color_continuous_scale="Viridis",
-        title="Vehicle Clients per District in Rwanda",
-        labels={'client_count': 'Number of Clients'}
+        color_continuous_scale='Blues',
+        labels={'client_count': 'Number of Clients'},
+        title='Vehicle Clients per District in Rwanda'
     )
-    
-    # Zoom to Rwanda
     fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(margin={"r":0,"t":40,"l":0,"b":0})
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    # Return the map as an HTML string
-    return pio.to_html(fig, full_html=False)
+    return fig.to_html(full_html=False, include_plotlyjs='cdn')
