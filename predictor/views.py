@@ -1,46 +1,31 @@
-from django.shortcuts import render
-import joblib
-import os
-import numpy as np
-
-# Get base directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Load ML model
-model_path = os.path.join(
-    BASE_DIR,
-    "model_generators",
-    "classification",
-    "classification_model.pkl"
-)
-
-classification_model = joblib.load(model_path)
-
-
-# -----------------------------
-# Data Exploration Page
-# -----------------------------
-def data_exploration_view(request):
-
-    return render(request, "data_exploration.html")
-
-
-# -----------------------------
-# Prediction Page
-# -----------------------------
-def predict_view(request):
-
-    prediction = None
-
-    if request.method == "POST":
-
-        bill_length = float(request.POST["bill_length"])
-        bill_depth = float(request.POST["bill_depth"])
-        flipper_length = float(request.POST["flipper_length"])
-        body_mass = float(request.POST["body_mass"])
-
-        features = np.array([[bill_length, bill_depth, flipper_length, body_mass]])
-
-        prediction = classification_model.predict(features)[0]
-
-    return render(request, "predict.html", {"prediction": prediction})
+import pandas as pd 
+from django.shortcuts import render 
+from predictor.data_exploration import dataset_exploration, data_exploration 
+ 
+def data_exploration_view(request): 
+    df = pd.read_csv("dummy-data/vehicles_ml_dataset.csv") 
+ 
+    context = { 
+        "data_exploration": data_exploration(df), 
+        "dataset_exploration": dataset_exploration(df), 
+    } 
+ 
+    return render(request, "predictor/index.html", context) 
+ 
+ 
+def regression_analysis(request): 
+ 
+    context = { 
+        "evaluations": evaluate_regression_model() 
+    } 
+ 
+    if request.method == "POST": 
+        year = int(request.POST["year"]) 
+        km = float(request.POST["km"]) 
+        seats = int(request.POST["seats"]) 
+        income = float(request.POST["income"]) 
+ 
+        prediction = regression_model.predict([[year, km, seats, income]])[0] 
+        context["price"] = prediction 
+ 
+    return render(request, "predictor/regression_analysis.html", context)
