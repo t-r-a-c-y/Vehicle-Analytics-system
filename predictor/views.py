@@ -11,6 +11,7 @@ regression_model = joblib.load("model_generators/regression/regression_model.pkl
 classification_model = joblib.load("model_generators/classification/classification_model.pkl")
 clustering_model = joblib.load("model_generators/clustering/clustering_model.pkl")
 
+
 def data_exploration_view(request):
     df = pd.read_csv("dummy-data/vehicles_ml_dataset.csv")
     context = {
