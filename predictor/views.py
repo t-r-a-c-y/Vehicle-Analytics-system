@@ -1,51 +1,46 @@
-import joblib 
-from model_generators.clustering.train_cluster import evaluate_clustering_model 
-from model_generators.classification.train_classifier import evaluate_classification_model 
-from model_generators.regression.train_regression import evaluate_regression_model 
- 
-# Load models once 
-regression_model = joblib.load("model_generators/regression/regression_model.pkl") 
-classification_model = joblib.load("model_generators/classification/classification_model.pkl") 
-clustering_model = joblib.load("model_generators/clustering/clustering_model.pkl") 
- 
-def classification_analysis(request): 
-    context = { 
-        "evaluations": evaluate_classification_model() 
-    } 
-    if request.method == "POST": 
-        year = int(request.POST["year"]) 
-        km = float(request.POST["km"]) 
-        seats = int(request.POST["seats"]) 
-        income = float(request.POST["income"]) 
-        prediction = classification_model.predict([[year, km, seats, income]])[0] 
- 
-        context["prediction"] = prediction 
-    return render(request, "predictor/classification_analysis.html", context) 
- 
-def clustering_analysis(request): 
-    context = { 
-        "evaluations": evaluate_clustering_model() 
-    } 
-    if request.method == "POST": 
-        try: 
-            year = int(request.POST["year"]) 
-            km = float(request.POST["km"]) 
-            seats = int(request.POST["seats"]) 
-            income = float(request.POST["income"]) 
-            # Step 1: Predict price 
-            predicted_price = regression_model.predict([[year, km, seats, income]])[0] 
-            # Step 2: Predict cluster 
-            cluster_id = clustering_model.predict([[income, predicted_price]])[0] 
-            mapping = { 
-                0: "Economy", 
-                1: "Standard", 
-                2: "Premium" 
-            } 
-            context.update({ 
-                "prediction": mapping.get(cluster_id, "Unknown"), 
-                "price": predicted_price 
-            }) 
-        except Exception as e: 
-            context["error"] = str(e) 
- 
-    return render(request, "predictor/clustering_analysis.html", context) 
+from django.shortcuts import render
+import joblib
+import os
+import numpy as np
+
+# Get base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Load ML model
+model_path = os.path.join(
+    BASE_DIR,
+    "model_generators",
+    "classification",
+    "classification_model.pkl"
+)
+
+classification_model = joblib.load(model_path)
+
+
+# -----------------------------
+# Data Exploration Page
+# -----------------------------
+def data_exploration_view(request):
+
+    return render(request, "data_exploration.html")
+
+
+# -----------------------------
+# Prediction Page
+# -----------------------------
+def predict_view(request):
+
+    prediction = None
+
+    if request.method == "POST":
+
+        bill_length = float(request.POST["bill_length"])
+        bill_depth = float(request.POST["bill_depth"])
+        flipper_length = float(request.POST["flipper_length"])
+        body_mass = float(request.POST["body_mass"])
+
+        features = np.array([[bill_length, bill_depth, flipper_length, body_mass]])
+
+        prediction = classification_model.predict(features)[0]
+
+    return render(request, "predict.html", {"prediction": prediction})
