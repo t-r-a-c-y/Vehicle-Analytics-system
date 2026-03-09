@@ -1,31 +1,30 @@
 import pandas as pd
 import plotly.express as px
 import json
-import requests  # For downloading GeoJSON
 
-def dataset_exploration(df):
-    return df.head().to_html(classes="table table-bordered table-striped table-sm", float_format="%.2f", justify="center", index=False)
+# Existing functions (dataset_exploration, data_exploration) ...
 
-def data_exploration(df):
-    return df.describe().to_html(classes="table table-bordered table-striped table-sm", float_format="%.2f", justify="center")
-
-# For exercise a: Rwanda map
 def generate_rwanda_map(df):
-    # Aggregate client counts per district
+    if 'district' not in df.columns:
+        return "<p>Error: No 'district' column in dataset.</p>"
+
+    # Normalize districts to match GeoJSON (e.g., title case)
+    df['district'] = df['district'].str.title().str.strip()
+
     district_counts = df['district'].value_counts().reset_index()
     district_counts.columns = ['district', 'client_count']
 
-    # Download GeoJSON (Rwanda districts ADM2)
-    geojson_url = 'https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/RWA/ADM2/geoBoundaries-RWA-ADM2.geojson'
-    response = requests.get(geojson_url)
-    geojson = json.loads(response.text)
+    try:
+        with open('dummy-data/rwanda_districts.geojson') as f:
+            geojson = json.load(f)
+    except Exception as e:
+        return f"<p>Error loading GeoJSON: {str(e)}</p>"
 
-    # Create choropleth map
     fig = px.choropleth(
         district_counts,
         geojson=geojson,
         locations='district',
-        featureidkey='properties.shapeName',  # Matches district names in GeoJSON
+        featureidkey='properties.shapeName',  # Confirm this matches your GeoJSON (from Step 2)
         color='client_count',
         color_continuous_scale='Blues',
         labels={'client_count': 'Number of Clients'},
@@ -34,4 +33,9 @@ def generate_rwanda_map(df):
     fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    return fig.to_html(full_html=False, include_plotlyjs='cdn')
+    # For debug: Print to terminal if no data matches
+    if district_counts.empty:
+        print("No district data for map")
+        return "<p>No district data available.</p>"
+
+    return fig.to_html(full_html=False, include_plotlyjs=True)  # Embed JS to avoid CDN issues
