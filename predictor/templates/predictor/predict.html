@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Penguin Predictor</title>
+</head>
+<body>
+
+<h2>Penguin Species Prediction</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Bill Length (mm)</label><br>
+    <input type="number" step="any" name="bill_length"><br><br>
+
+    <label>Bill Depth (mm)</label><br>
+    <input type="number" step="any" name="bill_depth"><br><br>
+
+    <label>Flipper Length (mm)</label><br>
+    <input type="number" step="any" name="flipper_length"><br><br>
+
+    <label>Body Mass (g)</label><br>
+    <input type="number" step="any" name="body_mass"><br><br>
+
+    <button type="submit">Predict Species</button>
+
+</form>
+
+{% if prediction %}
+
+<h3>Predicted Species: {{ prediction }}</h3>
+
+{% endif %}
+
+</body>
+</html>
