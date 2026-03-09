@@ -16,4 +16,4 @@ def data_exploration(df):
         float_format="%.2f", 
         justify="center", 
     ) 
-    return table_html 
+    return table_html
