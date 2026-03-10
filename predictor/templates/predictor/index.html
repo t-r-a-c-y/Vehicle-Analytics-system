@@ -17,7 +17,8 @@
                 <div id="data_exploration-nav" class="nav nav-pills flex-column">
                     <a class="nav-link mb-1 active" href="#dataset_exploration">Data Exploration</a>
                     <a class="nav-link mb-1" href="#data_exploration">Data Description</a>
-                    <a class="nav-link mb-1" href="#rwanda_map">Rwanda Client Map</a>  <!-- Added for exercise -->
+                    <a class="nav-link mb-1" href="#rwanda_map">Rwanda Client Map</a>
+                    <a class="nav-link mb-1" href="#world_map">World Client Map</a>  <!-- Added -->
                     <a class="nav-link mb-1" href="{% url 'regression_analysis' %}">Regression Analysis</a>
                     <a class="nav-link mb-1" href="{% url 'classification_analysis' %}">Classification Analysis</a>
                     <a class="nav-link mb-1" href="{% url 'clustering_analysis' %}">Clustering Analysis</a>
@@ -48,16 +49,25 @@
                         </div>
                     </div>
                 </section>
-                
                 <section id="rwanda_map" class="mb-5" style="padding-top: 20px;">
-                     <div class="card shadow-sm border-0">
-                     <div class="card-header bg-white border-bottom py-3">
-                     <span class="fw-bold">Rwanda Districts: Vehicle Clients</span>
-                             </div>
-                     <div class="card-body overflow-x-auto">
-                         {{ rwanda_map|safe }}
-                  </div>
-                     </div>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <span class="fw-bold">Rwanda Districts: Vehicle Clients</span>
+                        </div>
+                        <div class="card-body overflow-x-auto">
+                            {{ rwanda_map|safe }}
+                        </div>
+                    </div>
+                </section>
+                <section id="world_map" class="mb-5" style="padding-top: 20px;">  <!-- Added new section -->
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <span class="fw-bold">World Countries: Vehicle Clients</span>
+                        </div>
+                        <div class="card-body overflow-x-auto">
+                            {{ world_map|safe }}
+                        </div>
+                    </div>
                 </section>
             </main>
         </div>
