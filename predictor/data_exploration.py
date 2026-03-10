@@ -28,18 +28,43 @@ def generate_rwanda_map(df):
         district_counts,
         geojson=geojson,
         locations='district',
-        featureidkey='properties.NAME_2',  # Changed to match your GeoJSON key
+        featureidkey='properties.NAME_2',
         color='client_count',
         color_continuous_scale='Blues',
         labels={'client_count': 'Number of Clients'},
         title='Vehicle Clients per District in Rwanda',
-        hover_name='district'  # Show district names on hover
     )
-    fig.update_geos(fitbounds="locations", visible=False)  # Zoom to Rwanda boundaries
+    fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    # Add labels with district name and count (visible without hover)
+    centroids = []
+    for feature in geojson['features']:
+        district = feature['properties']['NAME_2']
+        count = district_counts[district_counts['district'] == district]['client_count'].values
+        count = count[0] if len(count) > 0 else 0
+        # Simple centroid approximation for label placement
+        if feature['geometry']['type'] == 'MultiPolygon':
+            coords = feature['geometry']['coordinates'][0][0]
+        else:
+            coords = feature['geometry']['coordinates'][0]
+        lon = sum(c[0] for c in coords) / len(coords)
+        lat = sum(c[1] for c in coords) / len(coords)
+        centroids.append({'district': district, 'lon': lon, 'lat': lat, 'label': f"{district}: {count}"})
+
+    centroid_df = pd.DataFrame(centroids)
+
+    fig.add_scattergeo(
+        lon=centroid_df['lon'],
+        lat=centroid_df['lat'],
+        text=centroid_df['label'],
+        mode='text',
+        textfont=dict(size=10, color='black', family='Arial'),
+        textposition='middle center'
+    )
 
     # Debug: If no matches, show message
     if not any(d in [f['properties']['NAME_2'] for f in geojson['features']] for d in district_counts['district']):
         return "<p>Error: District names don't match GeoJSON. Use standard names like 'Rwamagana', 'Gasabo'.</p>"
 
-    return fig.to_html(full_html=False, include_plotlyjs=True)  # Embed JS, no CDN needed
+    return fig.to_html(full_html=False, include_plotlyjs=True)
