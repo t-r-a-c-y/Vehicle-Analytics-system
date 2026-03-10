@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 import numpy as np
 
-df = pd.read_csv("../../dummy-data/vehicles_ml_dataset.csv")
+df = pd.read_csv("dummy-data/vehicles_ml_dataset.csv")
 
 SEGMENT_FEATURES = ["estimated_income", "selling_price", "kilometers_driven"]  # Added feature for better separation
 
