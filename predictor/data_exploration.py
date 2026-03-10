@@ -10,9 +10,9 @@ def data_exploration(df):
 
 def generate_rwanda_map(df):
     if 'district' not in df.columns:
-        return "<p>Error: 'district' column missing in vehicles_ml_dataset.csv. Add it with Rwanda district names.</p>"
+        return "<p>Error: 'district' column missing.</p>"
 
-    df['district'] = df['district'].str.title().str.replace(' District', '').str.strip()
+    df['district'] = df['district'].str.title().str.strip()
 
     district_counts = df['district'].value_counts().reset_index()
     district_counts.columns = ['district', 'client_count']
@@ -21,7 +21,7 @@ def generate_rwanda_map(df):
         with open('dummy-data/rwanda_districts.geojson') as f:
             geojson = json.load(f)
     except Exception as e:
-        return f"<p>Error loading GeoJSON: {str(e)}.</p>"
+        return f"<p>Error loading rwanda_districts.geojson: {str(e)}.</p>"
 
     fig = px.choropleth(
         district_counts,
@@ -65,11 +65,9 @@ def generate_rwanda_map(df):
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
-
-
 def generate_world_map(df):
     if 'country' not in df.columns:
-        return "<p>Error: 'country' column missing in vehicles_ml_dataset.csv.</p>"
+        return "<p>Error: 'country' column missing.</p>"
 
     df['country'] = df['country'].str.title().str.strip()
 
@@ -86,7 +84,7 @@ def generate_world_map(df):
         country_counts,
         geojson=geojson,
         locations='country',
-        featureidkey='properties.ADMIN',  # Adjust based on your GeoJSON (common key for country names)
+        featureidkey='properties.ADMIN',
         color='client_count',
         color_continuous_scale='Blues',
         labels={'client_count': 'Number of Clients'},
@@ -95,7 +93,6 @@ def generate_world_map(df):
     fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    # Add labels (visible without hover)
     centroids = []
     for feature in geojson['features']:
         country = feature['properties']['ADMIN']
