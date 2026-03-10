@@ -1,6 +1,6 @@
 import pandas as pd
 from django.shortcuts import render
-from predictor.data_exploration import dataset_exploration, data_exploration, generate_rwanda_map, generate_world_map
+from predictor.data_exploration import dataset_exploration, data_exploration, generate_rwanda_map
 import joblib
 from model_generators.regression.train_regression import evaluate_regression_model
 from model_generators.classification.train_classifier import evaluate_classification_model
@@ -17,8 +17,7 @@ def data_exploration_view(request):
     context = {
         "data_exploration": data_exploration(df),
         "dataset_exploration": dataset_exploration(df),
-        "rwanda_map": generate_rwanda_map(df),
-        "world_map": generate_world_map(df),
+        "rwanda_map": generate_rwanda_map(df),  # Exercise a
     }
 
     return render(request, "predictor/index.html", context)
