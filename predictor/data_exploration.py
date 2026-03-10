@@ -33,6 +33,7 @@ def generate_rwanda_map(df):
         color_continuous_scale='Blues',
         labels={'client_count': 'Number of Clients'},
         title='Vehicle Clients per District in Rwanda',
+        hover_name='district'
     )
     fig.update_geos(fitbounds="locations", visible=False)
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
@@ -66,5 +67,40 @@ def generate_rwanda_map(df):
     # Debug: If no matches, show message
     if not any(d in [f['properties']['NAME_2'] for f in geojson['features']] for d in district_counts['district']):
         return "<p>Error: District names don't match GeoJSON. Use standard names like 'Rwamagana', 'Gasabo'.</p>"
+
+    return fig.to_html(full_html=False, include_plotlyjs=True)
+
+def generate_world_map(df):
+    if 'country' not in df.columns:
+        return "<p>Error: 'country' column missing in vehicles_ml_dataset.csv. Add it with country names.</p>"
+
+    # Normalize country names (title case)
+    df['country'] = df['country'].str.title().str.strip()
+
+    country_counts = df['country'].value_counts().reset_index()
+    country_counts.columns = ['country', 'client_count']
+
+    fig = px.choropleth(
+        country_counts,
+        locations='country',
+        locationmode='country names',  # Built-in world map
+        color='client_count',
+        color_continuous_scale='Blues',
+        labels={'client_count': 'Number of Clients'},
+        title='Vehicle Clients per Country Worldwide',
+        hover_name='country'
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    # Add labels with country name and count (visible without hover) - approximate centroids for world
+    fig.add_scattergeo(
+        locations=country_counts['country'],
+        locationmode='country names',
+        text=country_counts.apply(lambda row: f"{row['country']}: {row['client_count']}", axis=1),
+        mode='text',
+        textfont=dict(size=8, color='black'),
+        textposition='middle center'
+    )
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
